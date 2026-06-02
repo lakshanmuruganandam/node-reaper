@@ -1,11 +1,12 @@
 {
   "name": "node-reaper-cli",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Lightning-fast CLI tool to hunt down and obliterate forgotten node_modules folders.",
   "main": "index.js",
   "type": "module",
   "bin": {
-    "node-reaper": "index.js"
+    "node-reaper-cli": "./index.js",
+    "node-reaper": "./index.js"
   },
   "scripts": {
     "start": "node index.js"
