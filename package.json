@@ -1,6 +1,6 @@
 {
   "name": "node-reaper-cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Lightning-fast CLI tool to hunt down and obliterate forgotten node_modules folders.",
   "main": "index.js",
   "type": "module",

@@ -11,44 +11,51 @@
     ╚═╝  ╚═══╝ ╚═════╝ ╚═════╝ ╚══════╝    ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝
 ```
 
-**Architected by [@lakshanmuruganandam](https://github.com/lakshanmuruganandam)**
+<p align="center">
+  <strong>Architected by <a href="https://github.com/lakshanmuruganandam">@lakshanmuruganandam</a></strong>
+  <br><br>
+  <a href="https://www.npmjs.com/package/node-reaper-cli"><img src="https://img.shields.io/npm/v/node-reaper-cli?color=red&label=npm&style=flat-square" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/node-reaper-cli"><img src="https://img.shields.io/npm/dt/node-reaper-cli?color=cyan&style=flat-square" alt="npm downloads"></a>
+  <a href="https://github.com/lakshanmuruganandam/node-reaper/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="license"></a>
+  <a href="https://github.com/lakshanmuruganandam/node-reaper"><img src="https://img.shields.io/github/stars/lakshanmuruganandam/node-reaper?color=yellow&style=flat-square" alt="stars"></a>
+</p>
 
 ---
 
 ## ⚡ Quick Start
 
-You don't need to install anything. Run it instantly with `npx`:
+Zero install. One command. Run it instantly with `npx`:
 
 ```bash
 npx node-reaper-cli
 ```
 
-Or install it globally for instant access anywhere:
+Or install it globally:
 
 ```bash
 npm install -g node-reaper-cli
 node-reaper
 ```
 
-Navigate to your main projects directory and let the Reaper hunt.
+> **Tip:** Navigate to your main projects directory (e.g. `~/Projects`) before running — the Reaper scans everything below the current directory.
 
 ---
 
 ## 🔥 Why Node Reaper?
 
-Every developer has **gigabytes** of forgotten `node_modules` rotting across old projects. Existing tools are slow, single-threaded, and dumb.
+Every developer has **gigabytes** of forgotten `node_modules` rotting across old projects. Existing tools like `npkill` are slow, single-threaded, and blind.
 
-Node Reaper is different:
+Node Reaper is engineered to be different:
 
-| Feature | Node Reaper | Others |
+| Feature | Node Reaper | npkill / Others |
 |---|---|---|
-| Multi-threaded size calculation | ✅ `Promise.all` parallel | ❌ Sequential |
-| Git-aware staleness detection | ✅ Checks last commit date | ❌ OS timestamps only |
-| Time Machine filter (`--older-than`) | ✅ | ❌ |
-| Deep scan (`.next`, `dist`, `.cache`) | ✅ | ❌ `node_modules` only |
-| Color-coded heatmap visualization | ✅ Red/Yellow/Cyan | ❌ Plain text |
-| Trash-by-default (safe deletion) | ✅ | ❌ Permanent delete |
-| Interactive multi-select TUI | ✅ | ❌ |
+| Parallel size calculation | ✅ `Promise.all` across all cores | ❌ Sequential, one at a time |
+| Git-aware staleness detection | ✅ Reads last commit timestamp | ❌ Relies on OS file dates |
+| Time Machine filter (`--older-than`) | ✅ Filter by days of inactivity | ❌ Not available |
+| Deep scan (`.next`, `dist`, `.cache`, `build`) | ✅ Full framework cache hunting | ❌ `node_modules` only |
+| Color-coded heatmap visualization | ✅ Red → Yellow → Cyan gradient | ❌ Plain text list |
+| Safe deletion (System Trash) | ✅ Trash by default, `--nuke` to override | ❌ Permanent delete only |
+| Interactive multi-select TUI | ✅ Select exactly what to kill | ❌ Delete one at a time |
 
 ---
 
@@ -69,17 +76,19 @@ npx node-reaper-cli --deep-scan
 npx node-reaper-cli --older-than 90
 ```
 
-### Combine them for surgical precision
+### Combine flags for surgical precision
 ```bash
 npx node-reaper-cli --deep-scan --older-than 30
 ```
 
-### Nuclear Mode — Permanently delete (bypass Trash)
+### Nuclear Mode — Permanently delete (bypass System Trash)
 ```bash
 npx node-reaper-cli --nuke
 ```
 
-### Dry Run — Simulate without deleting anything
+> ⚠️ **Warning:** `--nuke` permanently deletes folders. They cannot be recovered. Use with caution.
+
+### Dry Run — See what would be deleted without touching anything
 ```bash
 npx node-reaper-cli --dry-run
 ```
@@ -88,40 +97,83 @@ npx node-reaper-cli --dry-run
 
 ## 🎨 The Interface
 
-When you run Node Reaper, you get:
+When you run Node Reaper, you get a full interactive terminal experience:
 
-1. **A cyberpunk ASCII banner** — because first impressions matter.
-2. **A color-coded heatmap** — Red (massive), Yellow (medium), Cyan (small) — so you instantly see what's eating your disk.
-3. **Git-aware age display** — Shows how many days since the last commit, not just the OS file timestamp.
-4. **Interactive multi-select** — Use arrow keys to navigate, `Space` to select targets, `Enter` to execute.
-5. **Safe deletion** — Files go to your System Trash by default. Use `--nuke` only when you're sure.
+```
+  ▶ [ ] ██████████ [ 200 MB ]  (142d old)  old-api/node_modules
+    [ ] ████████░░ [ 150 MB ]  (89d old)   react-app/node_modules
+    [X] ████░░░░░░ [ 80 MB ]   (14d old)   nextjs-blog/node_modules
+    [ ] ██░░░░░░░░ [ 25 MB ]   (203d old)  portfolio-site/build
+```
+
+- **`▶`** — Cyan arrow shows your current position
+- **`[X]`** — Green checkbox marks selected targets
+- **`██████████`** — Heatmap bar scaled by size (Red = massive, Yellow = medium, Cyan = small)
+- **`(142d old)`** — Days since last Git commit (or file modification)
+- **Arrow keys** to navigate, **Space** to select, **Enter** to execute
 
 ---
 
 ## 📦 How It Works
 
-1. **Fast-Glob Engine** scans your filesystem at blazing speed to locate all target folders.
-2. **Parallel Size Calculator** uses `Promise.all` to calculate folder sizes across multiple processes simultaneously.
-3. **Git-Aware Staleness Detector** checks the `.git` directory for the last actual code commit timestamp — immune to iCloud/antivirus false positives.
-4. **Heatmap Renderer** color-codes results by relative size so the biggest offenders scream at you.
-5. **Safe Executor** moves folders to System Trash (or permanently deletes with `--nuke`).
+```
+┌─────────────────────────────────────────────────────────┐
+│  1. Fast-Glob Engine                                    │
+│     Scans filesystem at blazing speed using fast-glob   │
+│                         ↓                               │
+│  2. Parallel Size Calculator                            │
+│     Promise.all runs du across all folders at once      │
+│                         ↓                               │
+│  3. Git-Aware Staleness Detector                        │
+│     Reads .git/log for real last-commit timestamp       │
+│                         ↓                               │
+│  4. Heatmap Renderer                                    │
+│     Color-codes by relative size (Red → Cyan)           │
+│                         ↓                               │
+│  5. Safe Executor                                       │
+│     Moves to Trash (default) or permanent delete        │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📋 All Flags
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--deep-scan` | `-d` | Include `.next`, `dist`, `build`, `.cache` folders |
+| `--older-than <days>` | `-o` | Only show folders inactive for X+ days |
+| `--nuke` | | Permanently delete instead of moving to Trash |
+| `--dry-run` | | Simulate without deleting anything |
+| `--help` | `-h` | Show help |
 
 ---
 
 ## 🗺️ Roadmap
 
 See [ROADMAP.md](./ROADMAP.md) for the full feature plan, including:
-- Worker thread pooling for 100k+ file projects
-- Project type detection (React, Next.js, Vite, etc.)
-- Scheduled automatic cleanup via cron
-- Protected project allowlisting
+- Worker thread pool for scanning projects with 100k+ files
+- Project type badges (React, Next.js, Vite, Angular)
+- Headless CI mode (`--ci`) for GitHub Actions
+- JSON export (`--json`) for data pipelines
+- Scheduled daemon for automatic cleanup notifications
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome. Fork it, open a PR, or file an issue.
 
 ---
 
 ## 📄 License
 
-MIT — Use it, fork it, make it yours.
+[MIT](./LICENSE) — Use it, fork it, ship it.
 
 ---
 
-**If this tool saved you disk space, drop a ⭐ on the repo. It helps more than you think.**
+<p align="center">
+  <strong>If Node Reaper saved you disk space, drop a ⭐ on the repo.</strong>
+  <br>
+  <em>It helps more developers discover it.</em>
+</p>
