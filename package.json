@@ -12,18 +12,15 @@
     "start": "node index.js"
   },
   "keywords": [
-    "cli",
-    "clean",
     "node_modules",
-    "node-modules",
+    "clean",
     "disk-space",
+    "cli",
     "developer-tools",
-    "npkill",
-    "cleanup",
-    "terminal",
-    "productivity"
+    "productivity",
+    "reaper"
   ],
-  "author": "lakshanmuruganandam",
+  "author": "Lakshan Muruganandam <lakshan@example.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lakshanmuruganandam/node-reaper.git"
